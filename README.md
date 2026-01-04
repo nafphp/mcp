@@ -187,7 +187,7 @@ final class GetFolderSize implements ToolInterface
 
 ---
 
-## How the model calls the tool (`tools/call`)
+## How the model is calling the tool (`tools/call`)
 
 ### JSON-RPC Request
 
