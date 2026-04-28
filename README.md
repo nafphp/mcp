@@ -26,7 +26,7 @@ This plugin turns your NixPHP application into an **MCP server** that exposes
 * JSON-RPC 2.0 compliant MCP endpoint
 * Tool discovery via `tools/list`
 * Tool execution via `tools/call`
-* JSON Schema–driven input validation
+* JSON Schema–driven tool descriptions
 * Action-based tools (single tool, multiple behaviors)
 * Long-running tools supported (blocking by design)
 * No queues, no workers, no background state
@@ -48,6 +48,100 @@ The plugin auto-registers an MCP endpoint at:
 ```
 POST /mcp
 ```
+
+The endpoint uses MCP Streamable HTTP in its minimal request/response form:
+
+* JSON-RPC messages are sent via `POST /mcp`
+* responses are returned as `application/json`
+* server-initiated SSE streams are not opened yet
+* `GET /mcp` returns `405 Method Not Allowed`
+
+---
+
+## Authentication
+
+The endpoint is protected by Bearer token authentication by default. Tokens are
+stored file-based, so apps can use MCP without introducing database tables.
+
+Default token file:
+
+```
+storage/mcp/tokens.json
+```
+
+App configuration may override or disable this:
+
+```php
+return [
+    'mcp' => [
+        'auth' => [
+            'enabled' => true,
+            'driver' => 'file',
+            'token_file' => BASE_PATH . '/storage/mcp/tokens.json',
+        ],
+    ],
+];
+```
+
+For internal or local-only projects authentication can be opened explicitly:
+
+```php
+'mcp' => [
+    'auth' => [
+        'enabled' => false,
+    ],
+],
+```
+
+Create a token from application code:
+
+```php
+use function NixPHP\MCP\tokens;
+
+$created = tokens()->create('Local AI client', ['*']);
+
+echo $created->plainToken; // shown once, only the hash is stored
+```
+
+If `nixphp/cli` is installed, the plugin registers token commands
+automatically:
+
+```bash
+vendor/bin/nix mcp:token:create "Local AI client" --scope "*"
+vendor/bin/nix mcp:token:list
+vendor/bin/nix mcp:token:revoke tok_...
+```
+
+Clients send the token as:
+
+```http
+Authorization: Bearer mcp_...
+```
+
+### Tool Scopes
+
+Tools may opt into scope checks by implementing `ScopedToolInterface`:
+
+```php
+use NixPHP\MCP\Tools\ScopedToolInterface;
+use NixPHP\MCP\Tools\ToolInterface;
+
+final class ArticleSearchTool implements ToolInterface, ScopedToolInterface
+{
+    public function requiredScopes(): array
+    {
+        return ['articles:read'];
+    }
+
+    // ToolInterface methods...
+}
+```
+
+Supported scope patterns:
+
+* `*`
+* exact scopes such as `articles:read`
+* prefix wildcards such as `articles:*`
 
 ---
 
@@ -213,11 +307,7 @@ final class GetFolderSize implements ToolInterface
     "content": [
       {
         "type": "text",
-        "text": {
-          "path": "var/log",
-          "bytes": 25500000,
-          "human": "25.5 MB"
-        }
+        "text": "{\n  \"path\": \"var/log\",\n  \"bytes\": 25500000,\n  \"human\": \"25.5 MB\"\n}"
       }
     ],
     "isError": false
@@ -293,8 +383,8 @@ Resources may be added later as an extension.
 
 ## Requirements
 
-* PHP ≥ 8.1
-* `nixphp/framework` ≥ 0.1.2
+* PHP ≥ 8.3
+* `nixphp/framework` ≥ 0.1.0
 
 ---
 

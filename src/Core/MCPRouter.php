@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace NixPHP\MCP\Core;
 
+use NixPHP\MCP\Auth\McpIdentity;
 use NixPHP\MCP\Support\ToolRegistry;
 use NixPHP\MCP\Support\ToolResult;
 use Throwable;
@@ -22,7 +23,7 @@ class MCPRouter
      * @param array $msg decoded JSON-RPC request
      * @return array|null JSON-RPC response or null for notifications
      */
-    public function handle(array $msg): ?array
+    public function handle(array $msg, ?McpIdentity $identity = null): ?array
     {
         $id     = $msg['id'] ?? null;
         $method = $msg['method'] ?? null;
@@ -55,10 +56,10 @@ class MCPRouter
                 'notifications/initialized' => $isNotification ? null : $this->ok($id, (object)[]),
 
                 'tools/list' => $this->ok($id, [
-                    'tools' => $this->tools->definitions(),
+                    'tools' => $this->tools->definitions($identity),
                 ]),
 
-                'tools/call' => $this->handleToolsCall($id, $params),
+                'tools/call' => $this->handleToolsCall($id, $params, $identity),
 
                 default => $isNotification ? null : $this->error($id, -32601, 'Method not found'),
             };
@@ -75,7 +76,7 @@ class MCPRouter
      *
      * @return array
      */
-    private function handleToolsCall(mixed $id, mixed $params): array
+    private function handleToolsCall(mixed $id, mixed $params, ?McpIdentity $identity): array
     {
         if (!is_array($params)) {
             return $this->ok($id, ToolResult::error('Invalid params for tools/call'));
@@ -95,7 +96,7 @@ class MCPRouter
         }
 
         try {
-            $result = $this->tools->call($name, $args);
+            $result = $this->tools->call($name, $args, $identity);
             log()->debug('MCP: Called tool ' . $name);
 
             return $this->ok($id, ToolResult::json($result));

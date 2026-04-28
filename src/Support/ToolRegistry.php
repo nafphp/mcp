@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace NixPHP\MCP\Support;
 
+use NixPHP\MCP\Auth\McpIdentity;
+use NixPHP\MCP\Tools\ScopedToolInterface;
 use NixPHP\MCP\Tools\ToolInterface;
 
 final class ToolRegistry
@@ -17,25 +19,61 @@ final class ToolRegistry
     }
 
     /** Tool definitions for tools/list */
-    public function definitions(): array
+    public function definitions(?McpIdentity $identity = null): array
     {
-        return array_values(array_map(
-            fn(ToolInterface $t) => [
-                'name' => $t->name(),
-                'description' => $t->description(),
-                'inputSchema' => $t->inputSchema(),
-            ],
-            $this->tools
-        ));
+        $result = [];
+        foreach ($this->tools as $tool) {
+            if ($this->isAllowed($tool, $identity)) {
+                $result[] = [
+                    'name' => $tool->name(),
+                    'description' => $tool->description(),
+                    'inputSchema' => $this->ensureValidInputSchema($tool->inputSchema()),
+                ];
+            }
+        }
+        return $result;
     }
 
-    public function call(string $name, array $args): mixed
+    /**
+     * Ensures that a tool input schema is a valid JSON Schema object.
+     * If the schema is empty or invalid, returns a minimal valid object schema.
+     */
+    private function ensureValidInputSchema(array $schema): array
+    {
+        // Ensure we have a valid type field with a string value
+        if (!isset($schema['type']) || !is_string($schema['type']) || $schema['type'] === '') {
+            return [
+                'type' => 'object',
+                'properties' => [],
+                'additionalProperties' => false,
+            ];
+        }
+
+        // Ensure object type has required fields
+        if ($schema['type'] === 'object') {
+            $schema['properties'] = $schema['properties'] ?? [];
+            $schema['additionalProperties'] = $schema['additionalProperties'] ?? false;
+
+            if ($schema['properties'] === []) {
+                $schema['properties'] = (object)[];
+            }
+        }
+
+        return $schema;
+    }
+
+    public function call(string $name, array $args, ?McpIdentity $identity = null): mixed
     {
         if (!isset($this->tools[$name])) {
             throw new \RuntimeException("Unknown tool: $name");
         }
 
-        return $this->getTool($name)->handle($args);
+        $tool = $this->getTool($name);
+        if (!$this->isAllowed($tool, $identity)) {
+            throw new \RuntimeException("Not allowed to call tool: $name");
+        }
+
+        return $tool->handle($args);
     }
 
     public function getTool(string $name): ToolInterface
@@ -45,5 +83,14 @@ final class ToolRegistry
         }
 
         return $this->tools[$name];
+    }
+
+    private function isAllowed(ToolInterface $tool, ?McpIdentity $identity): bool
+    {
+        if (!$tool instanceof ScopedToolInterface) {
+            return true;
+        }
+
+        return $identity === null || $identity->canAny($tool->requiredScopes());
     }
 }

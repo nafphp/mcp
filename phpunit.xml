@@ -1,0 +1,22 @@
+<phpunit
+        bootstrap="tests/bootstrap.php"
+        colors="true"
+        failOnRisky="true"
+        failOnWarning="true"
+        cacheResult="false"
+        beStrictAboutTestsThatDoNotTestAnything="true"
+    >
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <env name="APP_ENV" value="testing" force="true" />
+        <ini name="error_reporting" value="-1" />
+        <ini name="display_errors" value="1" />
+        <const name="PHPUNIT_RUNNING" value="true"/>
+    </php>
+</phpunit>

@@ -12,7 +12,7 @@ class Schema implements \JsonSerializable
 
     public static function object(): self
     {
-        return new self(['type' => 'object', 'properties' => []]);
+        return new self(['type' => 'object', 'properties' => [], 'additionalProperties' => false]);
     }
 
     public static function string(): self { return new self(['type' => 'string']); }
