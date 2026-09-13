@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Store;
+namespace Naf\MCP\Store;
 
-use NixPHP\MCP\Support\TokenGenerator;
-use NixPHP\MCP\Support\TokenHasher;
+use Naf\MCP\Support\TokenGenerator;
+use Naf\MCP\Support\TokenHasher;
 
 final class FileTokenStore implements TokenStoreInterface
 {

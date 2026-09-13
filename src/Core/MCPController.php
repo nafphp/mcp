@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Core;
+namespace Naf\MCP\Core;
 
-use NixPHP\MCP\Auth\AuthenticatorInterface;
-use NixPHP\MCP\Auth\McpIdentity;
+use Naf\MCP\Auth\AuthenticatorInterface;
+use Naf\MCP\Auth\McpIdentity;
 use Psr\Http\Message\RequestInterface;
-use function NixPHP\app;
-use function NixPHP\json;
-use function NixPHP\response;
+use function Naf\app;
+use function Naf\json;
+use function Naf\response;
 
 class MCPController
 {

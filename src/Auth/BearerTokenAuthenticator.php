@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Auth;
+namespace Naf\MCP\Auth;
 
-use NixPHP\MCP\Store\TokenStoreInterface;
+use Naf\MCP\Store\TokenStoreInterface;
 use Psr\Http\Message\RequestInterface;
 
 final class BearerTokenAuthenticator implements AuthenticatorInterface

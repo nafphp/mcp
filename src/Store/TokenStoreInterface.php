@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Store;
+namespace Naf\MCP\Store;
 
 interface TokenStoreInterface
 {

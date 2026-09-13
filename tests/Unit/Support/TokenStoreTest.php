@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Support;
 
-use NixPHP\MCP\Store\FileTokenStore;
-use Tests\NixPHPTestCase;
+use Naf\MCP\Store\FileTokenStore;
+use Tests\NafTestCase;
 
-final class TokenStoreTest extends NixPHPTestCase
+final class TokenStoreTest extends NafTestCase
 {
     public function testCreatesFindsTouchesAndRevokesToken(): void
     {
-        $path = sys_get_temp_dir() . '/nixphp-mcp-test-' . bin2hex(random_bytes(8)) . '/tokens.json';
+        $path = sys_get_temp_dir() . '/naf-mcp-test-' . bin2hex(random_bytes(8)) . '/tokens.json';
         $store = new FileTokenStore($path);
 
         $created = $store->create('Test client', ['articles:read']);

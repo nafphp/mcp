@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Support;
 
-use NixPHP\MCP\Auth\McpIdentity;
-use NixPHP\MCP\Support\ToolRegistry;
-use NixPHP\MCP\Tools\ScopedToolInterface;
-use NixPHP\MCP\Tools\ToolInterface;
-use Tests\NixPHPTestCase;
+use Naf\MCP\Auth\McpIdentity;
+use Naf\MCP\Support\ToolRegistry;
+use Naf\MCP\Tools\ScopedToolInterface;
+use Naf\MCP\Tools\ToolInterface;
+use Tests\NafTestCase;
 
-final class ToolRegistryTest extends NixPHPTestCase
+final class ToolRegistryTest extends NafTestCase
 {
     public function testDefinitionsAreAListAndEmptyPropertiesStayAJsonObject(): void
     {

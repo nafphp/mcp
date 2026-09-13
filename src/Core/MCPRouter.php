@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Core;
+namespace Naf\MCP\Core;
 
-use NixPHP\MCP\Auth\McpIdentity;
-use NixPHP\MCP\Support\ToolRegistry;
-use NixPHP\MCP\Support\ToolResult;
+use Naf\MCP\Auth\McpIdentity;
+use Naf\MCP\Support\ToolRegistry;
+use Naf\MCP\Support\ToolResult;
 use Throwable;
-use function NixPHP\log;
+use function Naf\log;
 
 class MCPRouter
 {
     public function __construct(
         private readonly ToolRegistry $tools,
-        private readonly string $serverName = 'nixphp-mcp',
+        private readonly string $serverName = 'naf-mcp',
         private readonly string $serverVersion = '0.1.0',
         private readonly string $protocolVersion = '2025-06-18',
     ) {}

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use NixPHP\MCP\Auth\AuthenticatorInterface;
-use NixPHP\MCP\Auth\BearerTokenAuthenticator;
-use NixPHP\MCP\Auth\DisabledAuthenticator;
-use NixPHP\MCP\Commands\CreateTokenCommand;
-use NixPHP\MCP\Commands\ListTokensCommand;
-use NixPHP\MCP\Commands\RevokeTokenCommand;
-use NixPHP\MCP\Store\FileTokenStore;
-use NixPHP\MCP\Store\TokenStoreInterface;
-use NixPHP\MCP\Support\ToolRegistry;
-use function NixPHP\app;
-use function NixPHP\config;
+use Naf\MCP\Auth\AuthenticatorInterface;
+use Naf\MCP\Auth\BearerTokenAuthenticator;
+use Naf\MCP\Auth\DisabledAuthenticator;
+use Naf\MCP\Commands\CreateTokenCommand;
+use Naf\MCP\Commands\ListTokensCommand;
+use Naf\MCP\Commands\RevokeTokenCommand;
+use Naf\MCP\Store\FileTokenStore;
+use Naf\MCP\Store\TokenStoreInterface;
+use Naf\MCP\Support\ToolRegistry;
+use function Naf\app;
+use function Naf\config;
 
 app()->container()->set(ToolRegistry::class, new ToolRegistry());
 
@@ -37,11 +37,11 @@ app()->container()->set(AuthenticatorInterface::class, function () {
 });
 
 if (
-    (app()->hasPlugin('nixphp/cli') || function_exists('NixPHP\CLI\command'))
-    && class_exists(\NixPHP\CLI\Core\AbstractCommand::class)
-    && function_exists('NixPHP\CLI\command')
+    (app()->hasPlugin('naf/cli') || function_exists('Naf\CLI\command'))
+    && class_exists(\Naf\CLI\Core\AbstractCommand::class)
+    && function_exists('Naf\CLI\command')
 ) {
-    \NixPHP\CLI\command()->add(CreateTokenCommand::class);
-    \NixPHP\CLI\command()->add(ListTokensCommand::class);
-    \NixPHP\CLI\command()->add(RevokeTokenCommand::class);
+    \Naf\CLI\command()->add(CreateTokenCommand::class);
+    \Naf\CLI\command()->add(ListTokensCommand::class);
+    \Naf\CLI\command()->add(RevokeTokenCommand::class);
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Support;
+namespace Naf\MCP\Support;
 
 class Schema implements \JsonSerializable
 {

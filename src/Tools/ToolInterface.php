@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Tools;
+namespace Naf\MCP\Tools;
 
 interface ToolInterface
 {

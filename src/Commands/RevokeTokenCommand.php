@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Commands;
+namespace Naf\MCP\Commands;
 
-use NixPHP\CLI\Core\AbstractCommand;
-use NixPHP\CLI\Core\Input;
-use NixPHP\CLI\Core\Output;
-use function NixPHP\MCP\tokens;
+use Naf\CLI\Core\AbstractCommand;
+use Naf\CLI\Core\Input;
+use Naf\CLI\Core\Output;
+use function Naf\MCP\tokens;
 
 final class RevokeTokenCommand extends AbstractCommand
 {

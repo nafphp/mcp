@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP;
+namespace Naf\MCP;
 
-use NixPHP\MCP\Store\TokenStoreInterface;
-use NixPHP\MCP\Support\ToolRegistry;
-use function NixPHP\app;
+use Naf\MCP\Store\TokenStoreInterface;
+use Naf\MCP\Support\ToolRegistry;
+use function Naf\app;
 
 function tool(): ToolRegistry
 {

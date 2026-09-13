@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Support;
+namespace Naf\MCP\Support;
 
-use NixPHP\MCP\Auth\McpIdentity;
-use NixPHP\MCP\Tools\ScopedToolInterface;
-use NixPHP\MCP\Tools\ToolInterface;
+use Naf\MCP\Auth\McpIdentity;
+use Naf\MCP\Tools\ScopedToolInterface;
+use Naf\MCP\Tools\ToolInterface;
 
 final class ToolRegistry
 {

@@ -1,23 +1,23 @@
 <div style="text-align: center;" align="center">
 
-![Logo](https://nixphp.github.io/docs/assets/nixphp-logo-small-square.png)
+![NAF](assets/naf-logo-small-square.png)
 
-[![NixPHP MCP Plugin](https://github.com/nixphp/mcp/actions/workflows/php.yml/badge.svg)](https://github.com/nixphp/mcp/actions/workflows/php.yml)
+[![NAF MCP Plugin](https://github.com/nafphp/mcp/actions/workflows/php.yml/badge.svg)](https://github.com/nafphp/mcp/actions/workflows/php.yml)
 
 </div>
 
-[← Back to NixPHP](https://github.com/nixphp/framework)
+[← Back to NAF](https://github.com/nafphp/framework)
 
 ---
 
-# nixphp/mcp
+# naf/mcp
 
-> **Model Context Protocol (MCP) server implementation for NixPHP (Tools-first).**
+> **Model Context Protocol (MCP) server implementation for NAF (Tools-first).**
 
-This plugin turns your NixPHP application into an **MCP server** that exposes
+This plugin turns your NAF application into an **MCP server** that exposes
 **Tools** to AI clients such as ChatGPT.
 
-> 🧩 Part of the official NixPHP plugin collection.
+> 🧩 Part of the official NAF plugin collection.
 
 ---
 
@@ -40,7 +40,7 @@ This plugin turns your NixPHP application into an **MCP server** that exposes
 ## 📥 Installation
 
 ```bash
-composer require nixphp/mcp
+composer require naf/mcp
 ```
 
 The plugin auto-registers an MCP endpoint at:
@@ -96,14 +96,14 @@ For internal or local-only projects authentication can be opened explicitly:
 Create a token from application code:
 
 ```php
-use function NixPHP\MCP\tokens;
+use function Naf\MCP\tokens;
 
 $created = tokens()->create('Local AI client', ['*']);
 
 echo $created->plainToken; // shown once, only the hash is stored
 ```
 
-If `nixphp/cli` is installed, the plugin registers token commands
+If `naf/cli` is installed, the plugin registers token commands
 automatically:
 
 ```bash
@@ -123,8 +123,8 @@ Authorization: Bearer mcp_...
 Tools may opt into scope checks by implementing `ScopedToolInterface`:
 
 ```php
-use NixPHP\MCP\Tools\ScopedToolInterface;
-use NixPHP\MCP\Tools\ToolInterface;
+use Naf\MCP\Tools\ScopedToolInterface;
+use Naf\MCP\Tools\ToolInterface;
 
 final class ArticleSearchTool implements ToolInterface, ScopedToolInterface
 {
@@ -186,7 +186,7 @@ Response (simplified):
       "tools": {}
     },
     "serverInfo": {
-      "name": "nixphp-mcp",
+      "name": "naf-mcp",
       "version": "0.1.0"
     }
   }
@@ -232,8 +232,8 @@ Response:
 ### PHP Tool Implementation
 
 ```php
-use NixPHP\MCP\Support\Schema;
-use NixPHP\MCP\Tools\ToolInterface;
+use Naf\MCP\Support\Schema;
+use Naf\MCP\Tools\ToolInterface;
 
 final class GetFolderSize implements ToolInterface
 {
@@ -384,7 +384,7 @@ Resources may be added later as an extension.
 ## Requirements
 
 * PHP ≥ 8.3
-* `nixphp/framework` ≥ 0.1.0
+* `naf/framework` ≥ 0.1.0
 
 ---
 

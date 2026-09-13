@@ -6,6 +6,6 @@ namespace Tests;
 
 use PHPUnit\Framework\TestCase;
 
-class NixPHPTestCase extends TestCase
+class NafTestCase extends TestCase
 {
 }

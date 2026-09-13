@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace NixPHP\MCP\Auth;
+namespace Naf\MCP\Auth;
 
 final class McpIdentity
 {
