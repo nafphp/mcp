@@ -3,6 +3,7 @@
         colors="true"
         failOnRisky="true"
         failOnWarning="true"
+         failOnDeprecation="true"
         cacheResult="false"
         beStrictAboutTestsThatDoNotTestAnything="true"
     >
