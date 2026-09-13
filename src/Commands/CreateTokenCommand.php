@@ -29,8 +29,8 @@ final class CreateTokenCommand extends AbstractCommand
         if ($input->getOption('help') === true) {
             $this->showHelp($output);
             $output->writeLine('  <comment>Usage:</comment>');
-            $output->writeLine('    vendor/bin/nix mcp:token:create "Local Codex" --scope "*"');
-            $output->writeLine('    vendor/bin/nix mcp:token:create "Articles" --scope articles:read --scope articles:write --expires 2026-12-31');
+            $output->writeLine('    vendor/bin/naf mcp:token:create "Local Codex" --scope "*"');
+            $output->writeLine('    vendor/bin/naf mcp:token:create "Articles" --scope articles:read --scope articles:write --expires 2026-12-31');
             $output->writeLine('');
             return self::SUCCESS;
         }

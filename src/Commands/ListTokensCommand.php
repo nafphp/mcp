@@ -26,7 +26,7 @@ final class ListTokensCommand extends AbstractCommand
         if ($input->getOption('help') === true) {
             $this->showHelp($output);
             $output->writeLine('  <comment>Usage:</comment>');
-            $output->writeLine('    vendor/bin/nix mcp:token:list');
+            $output->writeLine('    vendor/bin/naf mcp:token:list');
             $output->writeLine('');
             return self::SUCCESS;
         }

@@ -27,7 +27,7 @@ final class RevokeTokenCommand extends AbstractCommand
         if ($input->getOption('help') === true) {
             $this->showHelp($output);
             $output->writeLine('  <comment>Usage:</comment>');
-            $output->writeLine('    vendor/bin/nix mcp:token:revoke tok_...');
+            $output->writeLine('    vendor/bin/naf mcp:token:revoke tok_...');
             $output->writeLine('');
             return self::SUCCESS;
         }
