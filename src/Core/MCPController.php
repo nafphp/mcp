@@ -7,6 +7,7 @@ namespace Naf\MCP\Core;
 use Naf\MCP\Auth\AuthenticatorInterface;
 use Naf\MCP\Auth\McpIdentity;
 use Psr\Http\Message\RequestInterface;
+
 use function Naf\app;
 use function Naf\json;
 use function Naf\response;
@@ -16,11 +17,12 @@ class MCPController
     public function __construct(
         private readonly MCPRouter $router,
         private readonly AuthenticatorInterface $authenticator,
-    ) {}
+    ) {
+    }
 
     public function post()
     {
-        $req  = app()->container()->get(RequestInterface::class);
+        $req      = app()->container()->get(RequestInterface::class);
         $identity = $this->authenticate($req);
         if ($identity === false) {
             return json([
@@ -33,7 +35,7 @@ class MCPController
             ], 401);
         }
 
-        $body = (string)$req->getBody();
+        $body = (string) $req->getBody();
 
         $msg = json_decode($body, true);
 

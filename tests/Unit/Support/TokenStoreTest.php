@@ -11,13 +11,13 @@ final class TokenStoreTest extends NafTestCase
 {
     public function testCreatesFindsTouchesAndRevokesToken(): void
     {
-        $path = sys_get_temp_dir() . '/naf-mcp-test-' . bin2hex(random_bytes(8)) . '/tokens.json';
+        $path  = sys_get_temp_dir() . '/naf-mcp-test-' . bin2hex(random_bytes(8)) . '/tokens.json';
         $store = new FileTokenStore($path);
 
         $created = $store->create('Test client', ['articles:read']);
         $this->assertStringStartsWith('mcp_', $created->plainToken);
         $this->assertFileExists($path);
-        $this->assertStringNotContainsString($created->plainToken, (string)file_get_contents($path));
+        $this->assertStringNotContainsString($created->plainToken, (string) file_get_contents($path));
 
         $record = $store->findByToken($created->plainToken);
         $this->assertNotNull($record);

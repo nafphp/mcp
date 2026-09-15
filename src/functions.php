@@ -6,6 +6,7 @@ namespace Naf\MCP;
 
 use Naf\MCP\Store\TokenStoreInterface;
 use Naf\MCP\Support\ToolRegistry;
+
 use function Naf\app;
 
 function tool(): ToolRegistry

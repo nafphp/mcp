@@ -7,6 +7,7 @@ namespace Naf\MCP\Commands;
 use Naf\CLI\Core\AbstractCommand;
 use Naf\CLI\Core\Input;
 use Naf\CLI\Core\Output;
+
 use function Naf\MCP\tokens;
 
 final class ListTokensCommand extends AbstractCommand
@@ -28,12 +29,14 @@ final class ListTokensCommand extends AbstractCommand
             $output->writeLine('  <comment>Usage:</comment>');
             $output->writeLine('    vendor/bin/naf mcp:token:list');
             $output->writeLine('');
+
             return self::SUCCESS;
         }
 
         $records = tokens()->all();
         if ($records === []) {
             $output->writeLine('No MCP tokens found.');
+
             return self::SUCCESS;
         }
 

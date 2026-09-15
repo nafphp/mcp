@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpClassCanBeReadonlyInspection */
+<?php
+
+/** @noinspection PhpClassCanBeReadonlyInspection */
 
 declare(strict_types=1);
 
@@ -8,6 +10,7 @@ use Naf\MCP\Auth\McpIdentity;
 use Naf\MCP\Support\ToolRegistry;
 use Naf\MCP\Support\ToolResult;
 use Throwable;
+
 use function Naf\log;
 
 class MCPRouter
@@ -17,7 +20,8 @@ class MCPRouter
         private readonly string $serverName = 'naf-mcp',
         private readonly string $serverVersion = '0.1.0',
         private readonly string $protocolVersion = '2025-06-18',
-    ) {}
+    ) {
+    }
 
     /**
      * @param array $msg decoded JSON-RPC request
@@ -44,16 +48,16 @@ class MCPRouter
                     'protocolVersion' => $this->protocolVersion,
                     'capabilities'    => [
                         // MUST be an object in JSON, not []
-                        'tools' => (object)[],
+                        'tools' => (object) [],
                     ],
-                    'serverInfo'      => [
+                    'serverInfo' => [
                         'name'    => $this->serverName,
                         'version' => $this->serverVersion,
                     ],
                 ]),
 
                 // Clients often send this as a notification (no id)
-                'notifications/initialized' => $isNotification ? null : $this->ok($id, (object)[]),
+                'notifications/initialized' => $isNotification ? null : $this->ok($id, (object) []),
 
                 'tools/list' => $this->ok($id, [
                     'tools' => $this->tools->definitions($identity),
@@ -66,6 +70,7 @@ class MCPRouter
         } catch (Throwable $e) {
             // Protocol-level failure (not a tool error). Usually rare.
             log()->error('MCP: Error while routing message: ' . $e->getMessage());
+
             return $isNotification ? null : $this->error($id, -32000, $e->getMessage());
         }
     }
