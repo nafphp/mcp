@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Naf\MCP\Store;
 
+use DateTimeInterface;
+
 interface TokenStoreInterface
 {
     /**
      * @param array<int, string> $scopes
      */
-    public function create(string $name, array $scopes = ['*'], ?\DateTimeInterface $expiresAt = null): CreatedToken;
+    public function create(string $name, array $scopes = ['*'], ?DateTimeInterface $expiresAt = null): CreatedToken;
 
     public function findByToken(string $plainToken): ?TokenRecord;
 

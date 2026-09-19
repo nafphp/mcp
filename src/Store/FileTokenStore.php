@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Naf\MCP\Store;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Naf\MCP\Support\TokenGenerator;
 use Naf\MCP\Support\TokenHasher;
+use RuntimeException;
 
 final class FileTokenStore implements TokenStoreInterface
 {
@@ -13,12 +16,13 @@ final class FileTokenStore implements TokenStoreInterface
         private readonly string $path,
         private readonly TokenHasher $hasher = new TokenHasher(),
         private readonly TokenGenerator $generator = new TokenGenerator(),
-    ) {}
+    ) {
+    }
 
-    public function create(string $name, array $scopes = ['*'], ?\DateTimeInterface $expiresAt = null): CreatedToken
+    public function create(string $name, array $scopes = ['*'], ?DateTimeInterface $expiresAt = null): CreatedToken
     {
         $plainToken = $this->generator->generate();
-        $now = $this->now();
+        $now        = $this->now();
 
         $normalizedScopes = array_values(array_unique(array_filter(array_map('strval', $scopes))));
         if ($normalizedScopes === []) {
@@ -36,6 +40,7 @@ final class FileTokenStore implements TokenStoreInterface
 
         $this->mutate(function (array $data) use ($record): array {
             $data['tokens'][] = $record->toArray();
+
             return $data;
         });
 
@@ -79,14 +84,14 @@ final class FileTokenStore implements TokenStoreInterface
     {
         return array_map(
             fn(array $item) => TokenRecord::fromArray($item),
-            $this->read()['tokens']
+            $this->read()['tokens'],
         );
     }
 
     public function revoke(string $id): bool
     {
         $revoked = false;
-        $now = $this->now();
+        $now     = $this->now();
 
         $this->mutate(function (array $data) use ($id, $now, &$revoked): array {
             foreach ($data['tokens'] as &$item) {
@@ -95,7 +100,7 @@ final class FileTokenStore implements TokenStoreInterface
                 }
 
                 $item['revoked_at'] = $now;
-                $revoked = true;
+                $revoked            = true;
             }
 
             return $data;
@@ -136,12 +141,12 @@ final class FileTokenStore implements TokenStoreInterface
 
         $data = json_decode($json, true);
         if (!is_array($data)) {
-            throw new \RuntimeException('Invalid MCP token store JSON.');
+            throw new RuntimeException('Invalid MCP token store JSON.');
         }
 
         $tokens = $data['tokens'] ?? [];
         if (!is_array($tokens)) {
-            throw new \RuntimeException('Invalid MCP token store structure.');
+            throw new RuntimeException('Invalid MCP token store structure.');
         }
 
         return ['tokens' => array_values($tokens)];
@@ -154,25 +159,25 @@ final class FileTokenStore implements TokenStoreInterface
     {
         $dir = dirname($this->path);
         if (!is_dir($dir) && !mkdir($dir, 0770, true) && !is_dir($dir)) {
-            throw new \RuntimeException('Unable to create MCP token store directory.');
+            throw new RuntimeException('Unable to create MCP token store directory.');
         }
 
         $handle = fopen($this->path, 'c+');
         if ($handle === false) {
-            throw new \RuntimeException('Unable to open MCP token store.');
+            throw new RuntimeException('Unable to open MCP token store.');
         }
 
         try {
             if (!flock($handle, LOCK_EX)) {
-                throw new \RuntimeException('Unable to lock MCP token store.');
+                throw new RuntimeException('Unable to lock MCP token store.');
             }
 
-            $raw = stream_get_contents($handle);
+            $raw  = stream_get_contents($handle);
             $data = ['tokens' => []];
             if (is_string($raw) && trim($raw) !== '') {
                 $decoded = json_decode($raw, true);
                 if (!is_array($decoded)) {
-                    throw new \RuntimeException('Invalid MCP token store JSON.');
+                    throw new RuntimeException('Invalid MCP token store JSON.');
                 }
                 $data = ['tokens' => array_values(is_array($decoded['tokens'] ?? null) ? $decoded['tokens'] : [])];
             }
@@ -191,6 +196,6 @@ final class FileTokenStore implements TokenStoreInterface
 
     private function now(): string
     {
-        return (new \DateTimeImmutable())->format(DATE_ATOM);
+        return (new DateTimeImmutable())->format(DATE_ATOM);
     }
 }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Naf\MCP\Commands;
 
+use DateTimeImmutable;
 use Naf\CLI\Core\AbstractCommand;
 use Naf\CLI\Core\Input;
 use Naf\CLI\Core\Output;
+use Throwable;
+
 use function Naf\MCP\tokens;
 
 final class CreateTokenCommand extends AbstractCommand
@@ -32,15 +35,17 @@ final class CreateTokenCommand extends AbstractCommand
             $output->writeLine('    vendor/bin/naf mcp:token:create "Local Codex" --scope "*"');
             $output->writeLine('    vendor/bin/naf mcp:token:create "Articles" --scope articles:read --scope articles:write --expires 2026-12-31');
             $output->writeLine('');
+
             return self::SUCCESS;
         }
 
-        $name = trim((string)($input->getArgument('name') ?? 'MCP token'));
-        $scopes = $this->normalizeScopes($input->getOption('scope'));
+        $name      = trim((string) ($input->getArgument('name') ?? 'MCP token'));
+        $scopes    = $this->normalizeScopes($input->getOption('scope'));
         $expiresAt = $this->normalizeExpiresAt($input->getOption('expires'));
 
         if ($expiresAt === false) {
             $output->writeLine('Invalid expiration date. Use something parseable like 2026-12-31 or +30 days.', 'error');
+
             return self::ERROR;
         }
 
@@ -87,15 +92,15 @@ final class CreateTokenCommand extends AbstractCommand
         return array_values(array_unique($scopes)) ?: ['*'];
     }
 
-    private function normalizeExpiresAt(string|array|bool|null $value): \DateTimeImmutable|false|null
+    private function normalizeExpiresAt(string|array|bool|null $value): DateTimeImmutable|false|null
     {
         if (!is_string($value) || trim($value) === '') {
             return null;
         }
 
         try {
-            return new \DateTimeImmutable(trim($value));
-        } catch (\Throwable) {
+            return new DateTimeImmutable(trim($value));
+        } catch (Throwable) {
             return false;
         }
     }

@@ -9,5 +9,6 @@ final class CreatedToken
     public function __construct(
         public readonly TokenRecord $record,
         public readonly string $plainToken,
-    ) {}
+    ) {
+    }
 }

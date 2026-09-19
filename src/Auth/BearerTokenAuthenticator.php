@@ -12,7 +12,8 @@ final class BearerTokenAuthenticator implements AuthenticatorInterface
     public function __construct(
         private readonly TokenStoreInterface $tokens,
         private readonly bool $enabled = true,
-    ) {}
+    ) {
+    }
 
     public function isEnabled(): bool
     {

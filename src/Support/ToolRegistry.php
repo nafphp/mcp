@@ -7,6 +7,7 @@ namespace Naf\MCP\Support;
 use Naf\MCP\Auth\McpIdentity;
 use Naf\MCP\Tools\ScopedToolInterface;
 use Naf\MCP\Tools\ToolInterface;
+use RuntimeException;
 
 final class ToolRegistry
 {
@@ -25,12 +26,13 @@ final class ToolRegistry
         foreach ($this->tools as $tool) {
             if ($this->isAllowed($tool, $identity)) {
                 $result[] = [
-                    'name' => $tool->name(),
+                    'name'        => $tool->name(),
                     'description' => $tool->description(),
                     'inputSchema' => $this->ensureValidInputSchema($tool->inputSchema()),
                 ];
             }
         }
+
         return $result;
     }
 
@@ -43,19 +45,19 @@ final class ToolRegistry
         // Ensure we have a valid type field with a string value
         if (!isset($schema['type']) || !is_string($schema['type']) || $schema['type'] === '') {
             return [
-                'type' => 'object',
-                'properties' => [],
+                'type'                 => 'object',
+                'properties'           => [],
                 'additionalProperties' => false,
             ];
         }
 
         // Ensure object type has required fields
         if ($schema['type'] === 'object') {
-            $schema['properties'] = $schema['properties'] ?? [];
+            $schema['properties']           = $schema['properties'] ?? [];
             $schema['additionalProperties'] = $schema['additionalProperties'] ?? false;
 
             if ($schema['properties'] === []) {
-                $schema['properties'] = (object)[];
+                $schema['properties'] = (object) [];
             }
         }
 
@@ -65,12 +67,12 @@ final class ToolRegistry
     public function call(string $name, array $args, ?McpIdentity $identity = null): mixed
     {
         if (!isset($this->tools[$name])) {
-            throw new \RuntimeException("Unknown tool: $name");
+            throw new RuntimeException("Unknown tool: $name");
         }
 
         $tool = $this->getTool($name);
         if (!$this->isAllowed($tool, $identity)) {
-            throw new \RuntimeException("Not allowed to call tool: $name");
+            throw new RuntimeException("Not allowed to call tool: $name");
         }
 
         return $tool->handle($args);
@@ -79,7 +81,7 @@ final class ToolRegistry
     public function getTool(string $name): ToolInterface
     {
         if (empty($this->tools[$name])) {
-            throw new \RuntimeException("Unknown tool: $name");
+            throw new RuntimeException("Unknown tool: $name");
         }
 
         return $this->tools[$name];

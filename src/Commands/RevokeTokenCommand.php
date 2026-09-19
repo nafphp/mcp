@@ -7,6 +7,7 @@ namespace Naf\MCP\Commands;
 use Naf\CLI\Core\AbstractCommand;
 use Naf\CLI\Core\Input;
 use Naf\CLI\Core\Output;
+
 use function Naf\MCP\tokens;
 
 final class RevokeTokenCommand extends AbstractCommand
@@ -29,17 +30,20 @@ final class RevokeTokenCommand extends AbstractCommand
             $output->writeLine('  <comment>Usage:</comment>');
             $output->writeLine('    vendor/bin/naf mcp:token:revoke tok_...');
             $output->writeLine('');
+
             return self::SUCCESS;
         }
 
-        $id = trim((string)$input->getArgument('id'));
+        $id = trim((string) $input->getArgument('id'));
         if ($id === '') {
             $output->writeLine('Token id is required.', 'error');
+
             return self::ERROR;
         }
 
         if (!tokens()->revoke($id)) {
             $output->writeLine('Token not found: ' . $id, 'error');
+
             return self::ERROR;
         }
 

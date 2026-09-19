@@ -7,8 +7,10 @@ namespace Naf\MCP\Tools;
 interface ToolInterface
 {
     public function name(): string;
-    public function description(): string;
-    public function inputSchema(): array;
-    public function handle(array $args): mixed;
 
+    public function description(): string;
+
+    public function inputSchema(): array;
+
+    public function handle(array $args): mixed;
 }

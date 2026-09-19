@@ -4,20 +4,37 @@ declare(strict_types=1);
 
 namespace Naf\MCP\Support;
 
-class Schema implements \JsonSerializable
+use JsonSerializable;
+
+class Schema implements JsonSerializable
 {
     private array $schema;
 
-    private function __construct(array $schema) { $this->schema = $schema; }
+    private function __construct(array $schema)
+    {
+        $this->schema = $schema;
+    }
 
     public static function object(): self
     {
         return new self(['type' => 'object', 'properties' => [], 'additionalProperties' => false]);
     }
 
-    public static function string(): self { return new self(['type' => 'string']); }
-    public static function integer(): self { return new self(['type' => 'integer']); }
-    public static function boolean(): self { return new self(['type' => 'boolean']); }
+    public static function string(): self
+    {
+        return new self(['type' => 'string']);
+    }
+
+    public static function integer(): self
+    {
+        return new self(['type' => 'integer']);
+    }
+
+    public static function boolean(): self
+    {
+        return new self(['type' => 'boolean']);
+    }
+
     public static function array(Schema $items): self
     {
         return new self(['type' => 'array', 'items' => $items->toArray()]);
@@ -26,6 +43,7 @@ class Schema implements \JsonSerializable
     public function prop(string $name, Schema $schema): self
     {
         $this->schema['properties'][$name] = $schema->toArray();
+
         return $this;
     }
 
@@ -33,8 +51,9 @@ class Schema implements \JsonSerializable
     {
         $this->schema['required'] = array_values(array_unique([
             ...($this->schema['required'] ?? []),
-            ...$names
+            ...$names,
         ]));
+
         return $this;
     }
 
@@ -58,31 +77,57 @@ class Schema implements \JsonSerializable
         return $this;
     }
 
-
     public function additionalProperties(bool $value): self
     {
         $this->schema['additionalProperties'] = $value;
+
         return $this;
     }
 
     public function description(string $text): self
     {
         $this->schema['description'] = $text;
+
         return $this;
     }
 
     public function enum(array $values): self
     {
         $this->schema['enum'] = array_values($values);
+
         return $this;
     }
 
-    public function min(int $v): self { $this->schema['minimum'] = $v; return $this; }
-    public function max(int $v): self { $this->schema['maximum'] = $v; return $this; }
-    public function default(mixed $v): self { $this->schema['default'] = $v; return $this; }
+    public function min(int $v): self
+    {
+        $this->schema['minimum'] = $v;
 
-    public function toArray(): array { return $this->schema; }
-    public function jsonSerialize(): array { return $this->schema; }
+        return $this;
+    }
+
+    public function max(int $v): self
+    {
+        $this->schema['maximum'] = $v;
+
+        return $this;
+    }
+
+    public function default(mixed $v): self
+    {
+        $this->schema['default'] = $v;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return $this->schema;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->schema;
+    }
 
     public function toJson(): string
     {

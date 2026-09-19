@@ -8,6 +8,7 @@ use Naf\MCP\Auth\McpIdentity;
 use Naf\MCP\Support\ToolRegistry;
 use Naf\MCP\Tools\ScopedToolInterface;
 use Naf\MCP\Tools\ToolInterface;
+use stdClass;
 use Tests\NafTestCase;
 
 final class ToolRegistryTest extends NafTestCase
@@ -21,7 +22,7 @@ final class ToolRegistryTest extends NafTestCase
 
         $this->assertSame(['plain_tool'], array_column($definitions, 'name'));
         $this->assertArrayHasKey(0, $definitions);
-        $this->assertInstanceOf(\stdClass::class, $definitions[0]['inputSchema']['properties']);
+        $this->assertInstanceOf(stdClass::class, $definitions[0]['inputSchema']['properties']);
     }
 
     public function testScopedToolsAreFilteredByIdentityScopes(): void
@@ -40,7 +41,9 @@ final class ToolRegistryTest extends NafTestCase
 
 class DummyTool implements ToolInterface
 {
-    public function __construct(private readonly string $name) {}
+    public function __construct(private readonly string $name)
+    {
+    }
 
     public function name(): string
     {
