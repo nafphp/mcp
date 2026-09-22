@@ -42,5 +42,14 @@
     "platform": {
       "php": "8.3.0"
     }
+  },
+  "extra": {
+    "naf": {
+      "boot": {
+        "after": [
+          "naf/cli"
+        ]
+      }
+    }
   }
 }
