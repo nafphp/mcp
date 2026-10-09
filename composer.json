@@ -26,12 +26,18 @@
   },
   "require": {
     "php": ">=8.3",
-    "naf/framework": "^0.2"
+    "naf/framework": "^0.2.8",
+    "opis/json-schema": "^2.6"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "3.95.25",
+    "naf/database": "^0.2",
+    "naf/oauth-server": "^0.2.3",
     "phpunit/php-code-coverage": "^12.1",
     "phpunit/phpunit": "^12.1"
+  },
+  "suggest": {
+    "naf/oauth-server": "Authenticate MCP clients with OAuth and linked user permissions."
   },
   "scripts": {
     "test": "phpunit --colors=always",
@@ -47,7 +53,8 @@
     "naf": {
       "boot": {
         "after": [
-          "naf/cli"
+          "naf/cli",
+          "naf/oauth-server"
         ]
       }
     }

@@ -13,6 +13,7 @@ final class McpIdentity
         public readonly string $id,
         public readonly string $name,
         public readonly array $scopes = [],
+        public readonly bool $userLinked = false,
     ) {
     }
 

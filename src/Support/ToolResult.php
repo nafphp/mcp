@@ -25,7 +25,21 @@ class ToolResult
 
         $flags = JSON_UNESCAPED_UNICODE | ($pretty ? JSON_PRETTY_PRINT : 0);
 
-        return self::text(json_encode($payload, $flags) ?: 'null', $isError);
+        $result = self::text(json_encode($payload, $flags | JSON_THROW_ON_ERROR), $isError);
+        if (is_object($payload) || (is_array($payload) && !array_is_list($payload))) {
+            $result['structuredContent'] = $payload;
+        }
+
+        return $result;
+    }
+
+    public static function normalize(mixed $payload): array
+    {
+        if (is_array($payload) && isset($payload['content']) && is_array($payload['content']) && array_is_list($payload['content'])) {
+            return $payload;
+        }
+
+        return self::json($payload);
     }
 
     public static function error(string $message): array
