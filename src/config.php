@@ -6,8 +6,9 @@ return [
     'csrf_exempt_routes' => ['mcp_server_rpc' => true],
     'mcp'                => [
         'transport' => [
-            'streaming'       => false,
-            'allowed_origins' => [],
+            'streaming'         => false,
+            'allowed_origins'   => [],
+            'max_request_bytes' => 1048576,
         ],
         'oauth' => [
             'resource'              => null,

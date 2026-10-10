@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use Closure;
+use Naf\Auth\Identity\Identity;
 use Naf\Auth\Identity\IdentityInterface;
 use Naf\Auth\Support\PasswordHasher;
+use Naf\MCP\Auth\AuthorizationException;
 use Naf\MCP\Auth\OAuthAuthenticator;
+use Naf\MCP\Support\ToolRegistry;
+use Naf\MCP\Tools\ScopedToolInterface;
+use Naf\MCP\Tools\UserToolInterface;
 use Naf\OAuth\Server\Core\ResourceServer;
 use Naf\OAuth\Server\Core\ScopePolicy;
 use Naf\OAuth\Server\Migrations\OAuthServerMigration;
@@ -16,10 +21,81 @@ use Naf\OAuth\Server\Store\PdoClients;
 use Naf\OAuth\Server\Store\PdoTokens;
 use Nyholm\Psr7\ServerRequest;
 use PDO;
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class OAuthAuthenticatorTest extends TestCase
 {
+    public static function literalScopes(): iterable
+    {
+        yield ['notes:*'];
+        yield ['*'];
+    }
+
+    #[DataProvider('literalScopes')]
+    public function testOAuthScopesNeverAcquireFileTokenWildcardRights(string $scope): void
+    {
+        $connection = new PDO('sqlite::memory:');
+        (new OAuthServerMigration())->up($connection);
+        [$client] = (new PdoClients($connection, new PasswordHasher(PASSWORD_BCRYPT, ['cost' => 4])))
+            ->register('App', ['https://app.example.test/callback'], ['authorization_code'], [$scope], false);
+        $tokens   = new PdoTokens($connection);
+        $verifier = str_repeat('v', 43);
+        $code     = $tokens->issueCode(new AuthorizationRequest(
+            $client->id,
+            'https://app.example.test/callback',
+            [$scope],
+            '',
+            rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '='),
+            null,
+            '',
+            'session',
+            'test',
+            '42',
+        ), 60);
+        $issued   = $tokens->redeem($code, $client, 'https://app.example.test/callback', $verifier, 60, 600);
+        $account  = new Identity('42', permissions: ['notes.read']);
+        $request  = new ServerRequest('POST', '/mcp', ['Authorization' => 'Bearer ' . $issued->accessToken]);
+        $identity = (new OAuthAuthenticator(new ResourceServer(
+            $tokens,
+            new ScopePolicy([$scope => ['permission' => 'notes.read']]),
+            static fn() => $account,
+            $request,
+        )))->authenticate($request);
+        $tool = new class implements UserToolInterface, ScopedToolInterface {
+            public function name(): string
+            {
+                return 'delete_note';
+            }
+
+            public function description(): string
+            {
+                return 'Delete a note.';
+            }
+
+            public function inputSchema(): array
+            {
+                return ['type' => 'object'];
+            }
+
+            public function requiredScopes(): array
+            {
+                return ['notes:delete'];
+            }
+
+            public function handle(array $args): mixed
+            {
+                Assert::fail('Unauthorized handler ran.');
+            }
+        };
+        $registry = new ToolRegistry('mcp:service');
+        $registry->register($tool);
+        self::assertSame([], $registry->definitions($identity));
+        $this->expectException(AuthorizationException::class);
+        $registry->call('delete_note', [], $identity);
+    }
+
     public function testServiceAndUserTokensKeepAudienceLifecycleAndCurrentPermissions(): void
     {
         $connection = new PDO('sqlite::memory:');
