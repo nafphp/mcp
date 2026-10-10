@@ -41,6 +41,16 @@ Add `ScopedToolInterface::requiredScopes()` for restricted tools. Validate argum
 call existing application/domain services inside the tool; metadata alone does not validate
 business input. Derive capability lists from registrations instead of maintaining duplicates.
 
+The HTTP transport is stateless Streamable HTTP. `mcp:transport:streaming` switches POST
+responses between JSON (default) and lazy SSE. Streaming tools implement `StreamingToolInterface`,
+yield `Progress` and return a normal tool result. Framework 0.2.8+ is required for bounded
+body reads. Verify flushing through an actual host, not only by casting the PSR-7 stream.
+Origins are trusted only through `public_url` or explicit `mcp:transport:allowed_origins`.
+Tool input schemas and advertised output schemas are enforced; domain rules remain in handlers.
+The optional OAuth driver reuses `naf/oauth-server`; personal tools implement `UserToolInterface`.
+Service discovery can list personal metadata without granting execution. Never combine
+service and user scopes in the same client-credentials registration.
+
 ## Change it here
 
 [ToolRegistry](src/Support/ToolRegistry.php), [tool contracts](src/Tools/),
