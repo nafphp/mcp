@@ -34,6 +34,7 @@ final readonly class OAuthAuthenticator implements AuthenticatorInterface
             (string) $context->clientId(),
             $scopes,
             !$context->isApplication(),
+            wildcardScopes: false,
         );
     }
 }

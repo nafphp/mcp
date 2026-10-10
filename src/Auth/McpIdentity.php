@@ -14,11 +14,16 @@ final class McpIdentity
         public readonly string $name,
         public readonly array $scopes = [],
         public readonly bool $userLinked = false,
+        private readonly bool $wildcardScopes = true,
     ) {
     }
 
     public function can(string $scope): bool
     {
+        if (!$this->wildcardScopes) {
+            return in_array($scope, $this->scopes, true);
+        }
+
         foreach ($this->scopes as $granted) {
             if ($granted === '*' || $granted === $scope) {
                 return true;

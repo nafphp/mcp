@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Naf\MCP\Core;
 
 use JsonException;
+use LogicException;
 use Naf\MCP\Auth\AuthenticatorInterface;
 use Naf\MCP\Auth\AuthorizationException;
 use Naf\MCP\Auth\McpIdentity;
@@ -43,8 +44,28 @@ class MCPController
             return $this->error(406, -32600, 'Accept must include application/json and text/event-stream.');
         }
 
+        $limit = config('mcp:transport:max_request_bytes', 1048576);
+        if (!is_int($limit) || $limit < 1 || $limit >= PHP_INT_MAX) {
+            throw new LogicException('mcp:transport:max_request_bytes must be a positive integer below PHP_INT_MAX.');
+        }
+        $body = $request->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+        $payload = '';
+        while (!$body->eof() && strlen($payload) <= $limit) {
+            $chunk = $body->read(min(8192, $limit + 1 - strlen($payload)));
+            if ($chunk === '') {
+                break;
+            }
+            $payload .= $chunk;
+        }
+        if (strlen($payload) > $limit) {
+            return $this->error(413, -32600, 'MCP request body is too large.');
+        }
+
         try {
-            $decoded = json_decode((string) $request->getBody(), false, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode($payload, false, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
             return $this->error(400, -32700, 'Parse error');
         }

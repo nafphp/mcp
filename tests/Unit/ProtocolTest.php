@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use Generator;
 use Naf\Core\Config;
 use Naf\MCP\Auth\AuthenticatorInterface;
+use Naf\MCP\Auth\DisabledAuthenticator;
 use Naf\MCP\Auth\McpIdentity;
 use Naf\MCP\Core\MCPController;
 use Naf\MCP\Core\MCPRouter;
@@ -19,6 +20,7 @@ use Naf\MCP\Tools\StreamingToolInterface;
 use Naf\MCP\Tools\ToolMetadataInterface;
 use Naf\MCP\Tools\UserToolInterface;
 use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -152,6 +154,40 @@ final class ProtocolTest extends TestCase
         $reply = $this->router->handle($this->message('tools/call', ['name' => 'schema']), $this->service);
         self::assertTrue($reply['result']['isError']);
         self::assertSame('The tool could not complete the request.', $reply['result']['content'][0]['text']);
+    }
+
+    public function testRequestBodyLimitIncludesUnknownSizeStreamsAndExactBoundary(): void
+    {
+        app()->container()->set(Config::class, new Config(['mcp' => ['transport' => ['max_request_bytes' => 128]]]));
+        $controller = new MCPController($this->router, new DisabledAuthenticator());
+        foreach ([128 => 200, 129 => 413] as $length => $status) {
+            $payload = str_pad(json_encode($this->message('ping')), $length);
+            $request = new ServerRequest('POST', '/mcp', ['Content-Type' => 'application/json', 'Accept' => 'application/json, text/event-stream'], $payload);
+            app()->container()->set(RequestInterface::class, $request);
+            self::assertSame($status, $controller->post()->getStatusCode());
+        }
+        $resource = fopen('php://temp', 'r+');
+        fwrite($resource, str_repeat('x', 1024));
+        rewind($resource);
+        $stream = new class ($resource) extends Stream {
+            public int $bytesRead = 0;
+
+            public function getSize(): ?int
+            {
+                return null;
+            }
+
+            public function read($length): string
+            {
+                $chunk = parent::read(min(7, $length));
+                $this->bytesRead += strlen($chunk);
+
+                return $chunk;
+            }
+        };
+        app()->container()->set(RequestInterface::class, $request->withBody($stream)->withoutHeader('Content-Length'));
+        self::assertSame(413, $controller->post()->getStatusCode());
+        self::assertSame(129, $stream->bytesRead);
     }
 
     private function message(string $method, array $params = []): array

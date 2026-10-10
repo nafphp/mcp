@@ -43,11 +43,13 @@ business input. Derive capability lists from registrations instead of maintainin
 
 The HTTP transport is stateless Streamable HTTP. `mcp:transport:streaming` switches POST
 responses between JSON (default) and lazy SSE. Streaming tools implement `StreamingToolInterface`,
-yield `Progress` and return a normal tool result. Framework 0.2.8+ is required for bounded
-body reads. Verify flushing through an actual host, not only by casting the PSR-7 stream.
+yield `Progress` and return a normal tool result. Framework 0.2.8+ is required. MCP bounds
+JSON body reads with `mcp:transport:max_request_bytes` (1 MiB by default). Verify flushing
+through an actual host, not only by casting the PSR-7 stream.
 Origins are trusted only through `public_url` or explicit `mcp:transport:allowed_origins`.
 Tool input schemas and advertised output schemas are enforced; domain rules remain in handlers.
 The optional OAuth driver reuses `naf/oauth-server`; personal tools implement `UserToolInterface`.
+OAuth scopes match literally; File-Token identities retain their documented wildcards.
 Service discovery can list personal metadata without granting execution. Never combine
 service and user scopes in the same client-credentials registration.
 
