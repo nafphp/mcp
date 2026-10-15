@@ -8,6 +8,7 @@ use Closure;
 use Naf\Auth\Identity\Identity;
 use Naf\Auth\Identity\IdentityInterface;
 use Naf\Auth\Support\PasswordHasher;
+use Naf\MCP\Auth\AuthenticatorInterface;
 use Naf\MCP\Auth\AuthorizationException;
 use Naf\MCP\Auth\OAuthAuthenticator;
 use Naf\MCP\Support\ToolRegistry;
@@ -19,14 +20,55 @@ use Naf\OAuth\Server\Migrations\OAuthServerMigration;
 use Naf\OAuth\Server\Model\AuthorizationRequest;
 use Naf\OAuth\Server\Store\PdoClients;
 use Naf\OAuth\Server\Store\PdoTokens;
+use Nyholm\Psr7\Request;
 use Nyholm\Psr7\ServerRequest;
 use PDO;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+
+use function Naf\app;
 
 final class OAuthAuthenticatorTest extends TestCase
 {
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testSharedAuthenticatorUsesTheSuppliedRequestForEveryMcpCall(): void
+    {
+        if (!defined('BASE_PATH')) {
+            define('BASE_PATH', dirname(__DIR__, 2));
+        }
+        $connection = new PDO('sqlite::memory:');
+        (new OAuthServerMigration())->up($connection);
+        $clients  = new PdoClients($connection, new PasswordHasher(PASSWORD_BCRYPT, ['cost' => 4]));
+        [$client] = $clients->register('Service', [], ['client_credentials'], ['mcp:service'], true);
+        $tokens   = new PdoTokens($connection);
+        $issued   = $tokens->issueForClient($client, ['mcp:service'], '', 60);
+        $first    = new ServerRequest('POST', 'https://tools.example.test/mcp', [
+            'Authorization' => 'Bearer ' . $issued->accessToken,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json, text/event-stream',
+        ], '{"jsonrpc":"2.0","id":1,"method":"ping"}');
+        $authenticator = new OAuthAuthenticator(new ResourceServer($tokens, new ScopePolicy([]), static fn(): null => null, $first));
+        self::assertNotNull($authenticator->authenticate($first));
+        self::assertNull($authenticator->authenticate(new Request('POST', '/mcp')));
+        self::assertNotNull($authenticator->authenticate($first));
+        self::assertNull($authenticator->authenticate($first->withHeader('Authorization', 'Bearer invalid')));
+
+        if (!method_exists(app(), 'handle')) {
+            self::markTestSkipped('Supplied-request integration requires naf/framework >= 0.2.12.');
+        }
+        require dirname(__DIR__, 2) . '/bootstrap.php';
+        require dirname(__DIR__, 2) . '/src/routes.php';
+        app()->container()->set(AuthenticatorInterface::class, $authenticator);
+        self::assertSame(200, app()->handle($first)->getStatusCode());
+        self::assertSame(401, app()->handle($first->withoutHeader('Authorization'))->getStatusCode());
+        self::assertSame(401, app()->handle($first->withHeader('Authorization', 'Bearer invalid'))->getStatusCode());
+        self::assertSame(200, app()->handle($first)->getStatusCode());
+    }
+
     public static function literalScopes(): iterable
     {
         yield ['notes:*'];

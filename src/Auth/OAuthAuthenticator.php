@@ -21,7 +21,7 @@ final readonly class OAuthAuthenticator implements AuthenticatorInterface
 
     public function authenticate(RequestInterface $request): ?McpIdentity
     {
-        $context = $this->server->context();
+        $context = $this->server->context($request);
         if (!$context->active() || (!$context->isApplication() && $context->user() === null)) {
             return null;
         }
