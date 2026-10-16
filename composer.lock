@@ -4,26 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "de27fa11440cc93f05946744349695c6",
+    "content-hash": "c5573aa4ab772eb72df7eb1259170d74",
     "packages": [
         {
             "name": "naf/framework",
-            "version": "v0.2.8",
+            "version": "v0.2.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nafphp/framework.git",
-                "reference": "cd14d834ca5a860809cb57dae859d16fa6ed1144"
+                "reference": "4c8dc4e4141a81f544021415cdef381c2dc961e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nafphp/framework/zipball/cd14d834ca5a860809cb57dae859d16fa6ed1144",
-                "reference": "cd14d834ca5a860809cb57dae859d16fa6ed1144",
+                "url": "https://api.github.com/repos/nafphp/framework/zipball/4c8dc4e4141a81f544021415cdef381c2dc961e6",
+                "reference": "4c8dc4e4141a81f544021415cdef381c2dc961e6",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "ext-pdo": "*",
-                "nyholm/psr7": "^1.8",
+                "nyholm/psr7": "^1.8.2",
                 "nyholm/psr7-server": "^1.1",
                 "php": ">=8.3",
                 "psr/container": "^2.0",
@@ -32,6 +31,7 @@
                 "psr/log": "^3.0"
             },
             "require-dev": {
+                "phpstan/phpstan": "^2.1",
                 "phpunit/php-code-coverage": "^12.1",
                 "phpunit/phpunit": "^12.1"
             },
@@ -58,9 +58,9 @@
             "description": "NAF - the ultra-light, functional PHP framework for fast microservices and APIs.",
             "support": {
                 "issues": "https://github.com/nafphp/framework/issues",
-                "source": "https://github.com/nafphp/framework/tree/v0.2.8"
+                "source": "https://github.com/nafphp/framework/tree/v0.2.12"
             },
-            "time": "2026-10-06T17:39:33+00:00"
+            "time": "2026-10-14T21:40:45+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -1469,16 +1469,16 @@
         },
         {
             "name": "naf/oauth-server",
-            "version": "v0.2.3",
+            "version": "v0.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nafphp/oauth-server.git",
-                "reference": "d695c53e1750c157f470c9c45f2691133ddd1bc7"
+                "reference": "4e43b884e164f081879450cedd23538909ca1cb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nafphp/oauth-server/zipball/d695c53e1750c157f470c9c45f2691133ddd1bc7",
-                "reference": "d695c53e1750c157f470c9c45f2691133ddd1bc7",
+                "url": "https://api.github.com/repos/nafphp/oauth-server/zipball/4e43b884e164f081879450cedd23538909ca1cb9",
+                "reference": "4e43b884e164f081879450cedd23538909ca1cb9",
                 "shasum": ""
             },
             "require": {
@@ -1517,14 +1517,32 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
                 "psr-4": {
                     "Naf\\OAuth\\Server\\": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "phpunit --colors=always"
+                ],
+                "analyse": [
+                    "phpstan analyse --memory-limit=256M"
+                ],
+                "style:check": [
+                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff"
+                ],
+                "style:fix": [
+                    "@php vendor/bin/php-cs-fixer fix"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1536,10 +1554,10 @@
             ],
             "description": "Run your application as an OAuth2 authorization server and protect its APIs.",
             "support": {
-                "issues": "https://github.com/nafphp/oauth-server/issues",
-                "source": "https://github.com/nafphp/oauth-server/tree/v0.2.3"
+                "source": "https://github.com/nafphp/oauth-server/tree/v0.2.6",
+                "issues": "https://github.com/nafphp/oauth-server/issues"
             },
-            "time": "2026-09-22T21:11:44+00:00"
+            "time": "2026-10-15T20:32:54+00:00"
         },
         {
             "name": "naf/session",
